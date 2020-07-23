@@ -37,14 +37,13 @@
         <div class="flex justify-center m-1">
             {{-- Youtube --}}
             @if ($job->link)
-            <iframe id="player" type="text/html" width="640" height="360"
+            <iframe id="player" type="text/html" width="800" height="600"
                 src="http://www.youtube.com/embed/{{$job->link}}" frameborder="0"></iframe>
             @endif
         </div>
-
-        {{$file}}
+        
         <div class="flex justify-center m-1">
-            <iframe height="600" width="800" src="http://docs.google.com/gview?url={{$file}}&embedded=true"
+            <iframe id="viewer" height="600" width="800" src="http://docs.google.com/gview?url={{$file}}&time=300000&embedded=true"
                 frameborder="0"></iframe>
         </div>
 
@@ -88,3 +87,18 @@
 </div>
 
 @endsection
+
+@push('js')
+    <script>
+        let ancho = screen.width;
+        if (ancho <= 640) {
+            let marco = document.getElementById('viewer');
+            marco.setAttribute('height',200);
+            marco.setAttribute('width',270);
+
+            let marco2 = document.getElementById('player');
+            marco2.setAttribute('height',200);
+            marco2.setAttribute('width',270);
+        }
+    </script>
+@endpush

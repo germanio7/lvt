@@ -10,6 +10,7 @@ use App\JobComment;
 use App\Traits\FilesTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class TeacherController extends Controller
 {
@@ -102,7 +103,8 @@ class TeacherController extends Controller
     public function showJob($id)
     {
         $job = Job::find($id);
-        $file = url('tareas/'.$job->file_path);
+        $file = asset('tareas/'.$job->file_path);
+        // $file = url('tareas/'.$job->file_path);
         return view('admin.teachers.showJob', compact('job','file'));
     }
 

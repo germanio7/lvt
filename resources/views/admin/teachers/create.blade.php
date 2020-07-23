@@ -207,6 +207,13 @@
       body.classList.toggle('modal-active')
     }
 
+    function PreviewImage() {
+    pdffile=document.getElementById("fileName").files[0];
+    pdffile_url=URL.createObjectURL(pdffile);
+    pdffile_url = pdffile_url.slice(5);
+    document.getElementById('viewer').setAttribute('src', 'http://docs.google.com/gview?url='+pdffile_url+'&time=300000&embedded=true');
+    }
+
     function setName(){
         let fileName = document.getElementById('fileName');
         var cad = fileName.value;
@@ -215,13 +222,14 @@
         selected.innerHTML = cad[2];
         fileDocument = document.getElementById("fileName").files[0];
         fileDocument_url = URL.createObjectURL(fileDocument);
-        document.getElementById('viewer').setAttribute('src', fileDocument_url);
+        // document.getElementById('viewer').setAttribute('src', fileDocument_url);
         let ancho = screen.width;
         if (ancho <= 640) {
             let marco = document.getElementById('viewer');
             marco.setAttribute('height',200);
             marco.setAttribute('width',270);
         }
+        PreviewImage();
         toggleModal();
     }
 </script>
