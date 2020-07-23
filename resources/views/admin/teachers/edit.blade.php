@@ -107,7 +107,7 @@
                             </label>
                             <input
                                 class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500 mb-2"
-                                placeholder="link" type="text" name="link" id="link" value="{{$job->link}}">
+                                placeholder="link" type="text" name="link" id="link" value="https://youtu.be/{{$job->link}}">
                         </div>
 
                         <div class="flex justify-center px-3">

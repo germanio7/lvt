@@ -44,6 +44,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('teacher/descargar/{job}', 'TeacherController@descargar')->name('teacher.descargar');
     Route::get('teacher/descargarDelivery/{job}', 'TeacherController@descargarDelivery')->name('teacher.descargarDelivery');
     Route::post('teacher/filtrar', 'TeacherController@filtrar')->name('teacher.filtrar');
+    Route::post('add/JobComment','TeacherController@addJobComment')->name('JobComment.store');
     // Ver tarea con su entrega
     Route::get('entrega/{delivery}', 'TeacherController@delivery')->name('teacher.delivery');
 

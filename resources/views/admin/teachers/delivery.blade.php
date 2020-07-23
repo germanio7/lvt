@@ -23,8 +23,7 @@
             {{$delivery->job->description}}
         </div>
         <div class="flex justify-center">
-            <iframe height="600" width="800" src="{{asset('entregas/'. $delivery->file_path)}}"
-                frameborder="0"></iframe>
+                <iframe id="viewer" height="600" width="800" src="{{asset('entregas/'. $delivery->file_path)}}" frameborder="0"></iframe>
         </div>
         <form action="/updateDelivery/{{$delivery->id}}" method="POST">
             @method('PUT')
@@ -97,3 +96,14 @@
 
 
 @endsection
+
+@push('js')
+    <script>
+        let ancho = screen.width;
+         if (ancho <= 640) {
+            let marco = document.getElementById('viewer');
+            marco.setAttribute('height',200);
+            marco.setAttribute('width',270);
+        }
+    </script>
+@endpush

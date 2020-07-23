@@ -9,7 +9,7 @@
             <h1 class="text-teal-600 font-semibold">{{$subject->name}}</h1>
         </div>
         <div class="card-body py-5">
-            <form method="POST" action="{{route('teachers.store')}}" enctype="multipart/form-data" class="mx-auto">
+            <form method="POST" action="{{route('teachers.store')}}" enctype="multipart/form-data" class="mx-auto" id="job">
                 @csrf
 
                 <input hidden type="text" name="subject" id="" value="{{$subject->id}}">
@@ -108,6 +108,14 @@
                             class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500 mb-2"
                             placeholder="link" type="text" name="link" id="link" value="{{ old('link') }}">
                     </div>
+
+                    <div class="">
+                        <label for="">Leave a comment</label>
+                        <button onclick="addComment(event)" class="bg-teal-600 text-white text-2xl p-2  ">+</button>
+                    </div>
+                    <div id="comment">
+
+                    </div>
                 </div>
                 <div class="flex justify-center px-3">
                     <button type="submit"
@@ -143,6 +151,25 @@
 
 @push('js')
 <script>
+    let comment = `<div class="">
+                        <label for="">Comment</label>
+                        <textarea name="comment" id="" cols="60" rows="5" class=""></textarea>
+                        </div> `
+        let delivery = document.getElementById('job')
+        delivery.addEventListener('submit',function(e){
+            e.preventDefault();
+           delivery.submit();
+
+        })
+
+        let com = document.getElementById('comment')
+
+        function addComment(event){
+            event.preventDefault()
+
+            com.innerHTML = comment
+        }
+
     var openmodal = document.querySelectorAll('.modal-open')
     for (var i = 0; i < openmodal.length; i++) {
       openmodal[i].addEventListener('click', function(event){
