@@ -41,10 +41,10 @@
                 src="http://www.youtube.com/embed/{{$job->link}}" frameborder="0"></iframe>
             @endif
         </div>
-        
+
         <div class="flex justify-center m-1">
-            <iframe id="viewer" height="600" width="800" src="http://docs.google.com/gview?url={{$file}}&time=300000&embedded=true"
-                frameborder="0"></iframe>
+            <input hidden value="{{$file}}" type="text" name="" id="auxiliar">
+            <iframe id="viewer" height="600" width="800" frameborder="0"></iframe>
         </div>
 
         <div class="w-6/12 ">
@@ -77,7 +77,8 @@
                 <input type="text" name="job" value="{{$job->id}}" hidden>
                 <div
                     class="w-8/12 mx-5 border border-gray-600 bg-white h-8 rounded-full px-5 py-1 content-center flex items-center">
-                    <input name="comment" type="text" class="bg-transparent focus:outline-none w-full  text-sm   "  value="{{ old('comment') }}">
+                    <input name="comment" type="text" class="bg-transparent focus:outline-none w-full  text-sm   "
+                        value="{{ old('comment') }}">
                     <button type="submit" class="text-teal-600 font-semibold">Comment</button>
                 </div>
             </form>
@@ -89,16 +90,38 @@
 @endsection
 
 @push('js')
-    <script>
-        let ancho = screen.width;
+<script>
+    let aux = document.getElementById('auxiliar').value;
+
+    let tipos = ['png', 'jpg'];
+
+    let aux1 = 0;
+
+    tipos.forEach(element => {
+        if (aux.search(element) > 0) {
+            aux1 = aux.search(element);
+        }
+    });
+
+    if (aux1 == 0) {
+        document.getElementById('viewer').setAttribute('src', 'http://docs.google.com/gview?url='+aux+'&time=300000&embedded=true');
+    } else {
+        document.getElementById('viewer').setAttribute('src', aux);
+    }
+
+    let ancho = screen.width;
         if (ancho <= 640) {
             let marco = document.getElementById('viewer');
             marco.setAttribute('height',200);
             marco.setAttribute('width',270);
 
+            let marco1 = document.getElementById('viewer2');
+            marco1.setAttribute('height',200);
+            marco1.setAttribute('width',270);
+
             let marco2 = document.getElementById('player');
             marco2.setAttribute('height',200);
             marco2.setAttribute('width',270);
         }
-    </script>
+</script>
 @endpush

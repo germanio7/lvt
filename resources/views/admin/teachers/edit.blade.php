@@ -107,7 +107,7 @@
                             </label>
                             <input
                                 class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500 mb-2"
-                                placeholder="link" type="text" name="link" id="link" value="https://youtu.be/{{$job->link}}">
+                                placeholder="link" type="text" name="link" id="link" value="{{$job->link}}">
                         </div>
 
                         <div class="flex justify-center px-3">
@@ -119,10 +119,18 @@
             </form>
             @if ($job->file_path)
             <div class="flex justify-center">
-                <iframe src="{{asset('tareas/'. $job->file_path)}}" id="viewer" height="600" width="800"
+                <input hidden value="{{asset('tareas/'. $job->file_path)}}" type="text" name="" id="auxiliar">
+                <iframe id="viewer" height="600" width="800"
                     frameborder="0"></iframe>
             </div>
             @endif
+            <div class="flex justify-center m-1">
+                {{-- Youtube --}}
+                @if ($job->link)
+                <iframe id="player" type="text/html" width="800" height="600"
+                    src="http://www.youtube.com/embed/{{$vid}}" frameborder="0"></iframe>
+                @endif
+            </div>
         </div>
     </div>
 </div>
@@ -130,6 +138,24 @@
 
 @push('js')
 <script>
+    let aux = document.getElementById('auxiliar').value;
+
+    let tipos = ['png', 'jpg'];
+
+    let aux1 = 0;
+
+    tipos.forEach(element => {
+        if (aux.search(element) > 0) {
+            aux1 = aux.search(element);
+        }
+    });
+
+    if (aux1 == 0) {
+        document.getElementById('viewer').setAttribute('src', 'http://docs.google.com/gview?url='+aux+'&time=300000&embedded=true');
+    } else {
+        document.getElementById('viewer').setAttribute('src', aux);
+    }
+
     let ancho = screen.width;
     if (ancho <= 640) {
         let marco = document.getElementById('viewer');

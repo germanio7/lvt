@@ -21,7 +21,11 @@
                     <tr class="text-center">
                         <td class="w-3/12">{{$entrega->user->name}}</td>
                         <td class="w-3/12 ">{{$entrega->created_at->format('d-m-Y')}}</td>
+                        @if ($entrega->file_path)
                         <td class="w-3/12">{{$entrega->state($entrega->state)}}</td>
+                        @else
+                        <td class="w-3/12">tiene comentario</td>
+                        @endif
                         <td class="md:w-3/12 w-9/12">
                             <div class="flex justify-center">
                                 <a href="{{route('teacher.delivery', $entrega->id)}}" class="mx-1 text-blue-500">Show</a>

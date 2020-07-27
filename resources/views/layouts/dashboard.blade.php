@@ -186,7 +186,7 @@
 
                 @endif
 
-                <div class="breadcrumbs w-auto p-1 mt-10 bg-gray-700 text-sm">
+                {{-- <div class="breadcrumbs w-auto p-1 mt-10 bg-gray-700 text-sm">
                     @foreach (request()->segments() as $segment)
                     @if ($loop->first)
                     <a href="/{{auth()->user()->roles()->first()->name}}">
@@ -198,12 +198,12 @@
                         <b>></b> <span class="text-gray-100">{{$segment}}</span>
                     </a>
 
-                    {{-- @if ($loop->last)
+                    @if ($loop->last)
                     <b>></b> <span class="text-gray-100">{{$segment}}</span>
-                    @endif --}}
+                    @endif
 
                     @endforeach
-                </div>
+                </div> --}}
 
                 @yield('content')
 

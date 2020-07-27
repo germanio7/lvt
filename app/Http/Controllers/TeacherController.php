@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Job;
 use App\Post;
+use App\User;
 use App\Subject;
 use App\Delivery;
 use App\JobComment;
+use App\Notifications\AdviserNotification;
+use App\Notifications\AdviserUpdatedJob;
 use App\Traits\FilesTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,15 +21,15 @@ class TeacherController extends Controller
     {
         $this->middleware('role:teacher')->except('addJobComment');
     }
-    
+
     public function index($id)
     {
         $subject = Subject::find($id);
         $subject->jobs;
 
-        $posts = Post::where('user_id',Auth::user()->id)->where('subject_id',$id)->with('annotations')->get();
+        $posts = Post::where('user_id', Auth::user()->id)->where('subject_id', $id)->with('annotations')->get();
 
-        return view('admin.teachers.subject', compact('subject','posts'));
+        return view('admin.teachers.subject', compact('subject', 'posts'));
     }
 
     public function create($subject)
@@ -45,11 +48,9 @@ class TeacherController extends Controller
             'link' => 'nullable|url',
             'file' => 'required|file',
             'start' => 'date',
-            'end' => 'date|after_or_equal:'.$request->start,
+            'end' => 'date|after_or_equal:' . $request->start,
             'comment' => 'nullable|min:3'
         ]);
-
-        $vid = substr($data['link'], -11);
 
         $nameFile = FilesTrait::store($request, $ubicacion = 'tareas', $nombre = $subject->name);
 
@@ -57,12 +58,12 @@ class TeacherController extends Controller
             $data['subject_id'] = $data['subject'];
             $data['state'] = 0;
 
-            $job=Job::create([
+            $job = Job::create([
                 'title' => $data['title'],
                 'description' => $data['description'],
                 'subject_id' => $data['subject'],
                 'file_path' => $nameFile,
-                'link' => $vid,
+                'link' => $data['link'],
                 'start' => $data['start'],
                 'end' => $data['end'],
                 'state' => 0,
@@ -75,6 +76,12 @@ class TeacherController extends Controller
                     'job_id' => $job->id,
                     'comment' => $data['comment'],
                 ]);
+            }
+
+            $users = User::role('adviser')->get();
+            
+            foreach ($users as $user) {
+                $user->notify(new AdviserNotification($job, 'Nueva Tarea'));
             }
         }
         session()->flash('messages', 'Tarea creada');
@@ -103,15 +110,25 @@ class TeacherController extends Controller
     public function showJob($id)
     {
         $job = Job::find($id);
-        $file = asset('tareas/'.$job->file_path);
-        // $file = url('tareas/'.$job->file_path);
-        return view('admin.teachers.showJob', compact('job','file'));
+        $vid = substr($job->link, -11);
+        $job->link = $vid;
+        $file = asset('tareas/' . $job->file_path);
+
+        $notif = auth()->user()->notifications()->whereNotifiable_id(auth()->user()->id)
+            ->whereRead_at(null)
+            ->where('data->action', $id)
+            ->get();
+
+        $notif->markAsRead();
+        
+        return view('admin.teachers.showJob', compact('job', 'file'));
     }
 
     public function edit($id)
     {
         $job = Job::find($id);
-        return view('admin.teachers.edit', compact('job'));
+        $vid = substr($job->link, -11);
+        return view('admin.teachers.edit', compact('job', 'vid'));
     }
 
     public function update(Request $request, $id)
@@ -133,6 +150,12 @@ class TeacherController extends Controller
         }
 
         $job->update($data);
+
+        $users = User::role('adviser')->get();
+            
+            foreach ($users as $user) {
+                $user->notify(new AdviserNotification($job, 'Tarea Actualizada'));
+            }
         session()->flash('messages', 'Tarea actualizada');
         return redirect()->action('TeacherController@index', $subject->id);
     }

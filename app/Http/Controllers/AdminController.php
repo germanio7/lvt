@@ -24,8 +24,8 @@ class AdminController extends Controller
     {
         $year = now()->format('Y');
         $subjects = TeachersTrait::subjects($year);
-
-        return view('admin.teachers.index', compact('subjects'));
+        $noLeidas = auth()->user()->unreadNotifications()->get();
+        return view('admin.teachers.index', compact('subjects', 'noLeidas'));
     }
 
     public function student()
@@ -41,13 +41,15 @@ class AdminController extends Controller
         $deliveries = Delivery::where('user_id', $user->id)->get();
         $jobs = StudentsTrait::pendding();
 
+        $noLeidas = auth()->user()->unreadNotifications()->get();
 
-        return view('admin.students.index', compact('user', 'jobs', 'deliveries','subjects'));
+        return view('admin.students.index', compact('user', 'jobs', 'deliveries','subjects', 'noLeidas'));
     }
 
     public function adviser()
     {
         $jobs = Job::where('state', 0)->get();
-        return view('admin.advisers.index', compact('jobs'));
+        $noLeidas = auth()->user()->unreadNotifications()->get();
+        return view('admin.advisers.index', compact('jobs', 'noLeidas'));
     }
 }

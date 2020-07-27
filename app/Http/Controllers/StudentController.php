@@ -5,11 +5,13 @@ namespace App\Http\Controllers;
 use App\Job;
 use App\Comment;
 use App\Delivery;
+use App\Notifications\StudentNotification;
 use App\Traits\FilesTrait;
 use Illuminate\Http\Request;
 use App\Traits\StudentsTrait;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use App\Notifications\TeacherNotification;
 
 class StudentController extends Controller
 {
@@ -43,7 +45,7 @@ class StudentController extends Controller
     {
 
         try {
-            DB::transaction(function () use ($request) {
+            // DB::transaction(function () use ($request) {
                 $nameFile = FilesTrait::store($request, $ubicacion = 'entregas', $nombre = auth()->user()->name);
                 // if ($request->file->getClientOriginalExtension() == 'pdf' || $request->file->getClientOriginalExtension() == 'docx') {
                 //     $nameFile = time() . '_' . auth()->user()->name . '.' . $request->file->getClientOriginalExtension();
@@ -51,14 +53,14 @@ class StudentController extends Controller
                 //     $request->file->move($path, $nameFile);
                 // }
 
-                if ($nameFile) {
+                // if ($nameFile) {
                     $delivery = Delivery::create([
                         'job_id' => $request->job,
                         'file_path' => $nameFile,
                         'state' => 0,
                         'user_id' => Auth::user()->id,
                     ]);
-                }
+                // }
 
                 // Si tiene comentarios los crea
                 if ($request->comment) {
@@ -68,7 +70,11 @@ class StudentController extends Controller
                         'comment' => $request->comment,
                     ]);
                 }
-            });
+
+                $job = Job::find($request->job);
+                $user = $job->subject->teacher;
+                $user->notify(new TeacherNotification('Entrega', $delivery, 'Nueva Entrega'));
+            // });
 
             session()->flash('message', 'Entrega creada');
         } catch (\Throwable $th) {
@@ -91,6 +97,12 @@ class StudentController extends Controller
         Delivery::where('id', $id)
 
             ->update(['state' => $request->state]);
+
+        $delivery = Delivery::find($id);
+        if ($request->state == 1) {
+            $student = $delivery->user;
+            $student->notify(new StudentNotification('Entrega', $delivery, 'Revisar Entrega'));
+        }
 
         return redirect()->back();
     }

@@ -9,7 +9,8 @@
             <h1 class="text-teal-600 font-semibold">{{$subject->name}}</h1>
         </div>
         <div class="card-body py-5">
-            <form method="POST" action="{{route('teachers.store')}}" enctype="multipart/form-data" class="mx-auto" id="job">
+            <form method="POST" action="{{route('teachers.store')}}" enctype="multipart/form-data" class="mx-auto"
+                id="job">
                 @csrf
 
                 <input hidden type="text" name="subject" id="" value="{{$subject->id}}">
@@ -207,30 +208,34 @@
       body.classList.toggle('modal-active')
     }
 
-    function PreviewImage() {
-    pdffile=document.getElementById("fileName").files[0];
-    pdffile_url=URL.createObjectURL(pdffile);
-    pdffile_url = pdffile_url.slice(5);
-    document.getElementById('viewer').setAttribute('src', 'http://docs.google.com/gview?url='+pdffile_url+'&time=300000&embedded=true');
-    }
+    // function PreviewImage() {
+    // pdffile=document.getElementById("fileName").files[0];
+    // pdffile_url=URL.createObjectURL(pdffile);
+    // pdffile_url = pdffile_url.slice(5);
+    // document.getElementById('viewer').setAttribute('src', 'http://docs.google.com/gview?url='+pdffile_url+'&time=300000&embedded=true');
+    // }
 
     function setName(){
         let fileName = document.getElementById('fileName');
         var cad = fileName.value;
         cad = cad.split('\\');
+        let extension = cad[2].split('.');
         let selected = document.getElementById('selected');
         selected.innerHTML = cad[2];
         fileDocument = document.getElementById("fileName").files[0];
         fileDocument_url = URL.createObjectURL(fileDocument);
-        // document.getElementById('viewer').setAttribute('src', fileDocument_url);
-        let ancho = screen.width;
-        if (ancho <= 640) {
-            let marco = document.getElementById('viewer');
-            marco.setAttribute('height',200);
-            marco.setAttribute('width',270);
+        if (extension[1] == 'pdf' || extension[1] == 'png' || extension[1] == 'jpg' || extension[1] == 'txt') {
+            document.getElementById('viewer').setAttribute('src', fileDocument_url);
+            let ancho = screen.width;
+            if (ancho <= 640) {
+                let marco = document.getElementById('viewer');
+                marco.setAttribute('height',200);
+                marco.setAttribute('width',270);
+            }
+            // PreviewImage();
+            toggleModal();
         }
-        PreviewImage();
-        toggleModal();
+        
     }
 </script>
 @endpush
