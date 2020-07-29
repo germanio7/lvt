@@ -14,6 +14,7 @@
         </a>
     </div>
     @endforeach
+    <a href="{{route('notifications')}}" class="bg-teal-600 text-white text-sm p-2 shadow-lg hover:text-gray-700">Ver más</a>
 </div>
 
 <div class="grid grid-cols-1 lg:grid-cols-2">

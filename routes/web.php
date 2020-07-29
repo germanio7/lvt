@@ -33,6 +33,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('deliver/{job}', 'StudentController@deliver')->name('deliver');
     Route::post('deliver', 'StudentController@store')->name('deliver.store');
     Route::put('updateDelivery/{id}','StudentController@updateDelivery')->name('update.delivery');
+    Route::put('update/{id}','StudentController@update')->name('update.deliver');
     Route::get('delivery/{id}','StudentController@show')->name('delivery.show');
     Route::post('add/comment','StudentController@addComment')->name('comment.store');
 
@@ -76,5 +77,11 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('annotations', 'AnnotationController');
 
     Route::get('newpost/{subject}','PostController@create')->name('new.post');
+
+    // Notificaciones
+    Route::get('notifications', function(){
+        $todas = auth()->user()->notifications;
+        return view('admin.notifications', compact('todas'));
+    })->name('notifications');
 });
 

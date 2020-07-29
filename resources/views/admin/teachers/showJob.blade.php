@@ -43,7 +43,6 @@
         </div>
 
         <div class="flex justify-center m-1">
-            <input hidden value="{{$file}}" type="text" name="" id="auxiliar">
             <iframe id="viewer" height="600" width="800" frameborder="0"></iframe>
         </div>
 
@@ -91,7 +90,7 @@
 
 @push('js')
 <script>
-    let aux = document.getElementById('auxiliar').value;
+    let aux = @json($file);
 
     let tipos = ['png', 'jpg'];
 
@@ -114,10 +113,6 @@
             let marco = document.getElementById('viewer');
             marco.setAttribute('height',200);
             marco.setAttribute('width',270);
-
-            let marco1 = document.getElementById('viewer2');
-            marco1.setAttribute('height',200);
-            marco1.setAttribute('width',270);
 
             let marco2 = document.getElementById('player');
             marco2.setAttribute('height',200);

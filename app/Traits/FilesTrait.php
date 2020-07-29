@@ -17,9 +17,7 @@ trait FilesTrait
                     $constraint->upsize();
                 });
                 $image->save($path . '/' . $nameFile, 100);
-            }
-
-            if ($request->file->getClientOriginalExtension() == 'pdf' || $request->file->getClientOriginalExtension() == 'docx' || $request->file->getClientOriginalExtension() == 'xlsx') {
+            } else {
                 $request->file->move($path, $nameFile);
             }
 
@@ -42,9 +40,7 @@ trait FilesTrait
             if (file_exists($aux)) {
                 @unlink($aux);
             }
-        }
-
-        if ($request->file->getClientOriginalExtension() == 'pdf' || $request->file->getClientOriginalExtension() == 'docx' || $request->file->getClientOriginalExtension() == 'xlsx') {
+        } else{
             $request->file->move($path, $nameFile);
             if (file_exists($aux)) {
                 @unlink($aux);

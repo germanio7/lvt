@@ -18,6 +18,8 @@ class AdviserController extends Controller
     {
         $job = Job::find($id);
 
+        // auth()->user()->notifications()->find($id)->markAsRead();
+
         $notif = auth()->user()->notifications()->whereNotifiable_id(auth()->user()->id)
             ->whereRead_at(null)
             ->where('data->action', $id)
@@ -44,6 +46,8 @@ class AdviserController extends Controller
                 $user->notify(new StudentNotification('Tarea',$job, 'Nueva Tarea'));
             });
         }
+
+        // auth()->user()->notifications()->find($id)->markAsRead();
 
         $notif = auth()->user()->notifications()->whereNotifiable_id(auth()->user()->id)
             ->whereRead_at(null)

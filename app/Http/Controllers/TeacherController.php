@@ -9,11 +9,9 @@ use App\Subject;
 use App\Delivery;
 use App\JobComment;
 use App\Notifications\AdviserNotification;
-use App\Notifications\AdviserUpdatedJob;
 use App\Traits\FilesTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 
 class TeacherController extends Controller
 {
@@ -46,13 +44,13 @@ class TeacherController extends Controller
             'description' => 'required',
             'subject' => 'required',
             'link' => 'nullable|url',
-            'file' => 'required|file',
+            'file' => 'file|mimes:pdf,docx,jpg,jpeg,png',
             'start' => 'date',
             'end' => 'date|after_or_equal:' . $request->start,
             'comment' => 'nullable|min:3'
         ]);
 
-        $nameFile = FilesTrait::store($request, $ubicacion = 'tareas', $nombre = $subject->name);
+        $nameFile = FilesTrait::store($request, 'tareas', $subject->name);
 
         if ($nameFile) {
             $data['subject_id'] = $data['subject'];
@@ -128,28 +126,35 @@ class TeacherController extends Controller
     {
         $job = Job::find($id);
         $vid = substr($job->link, -11);
-        return view('admin.teachers.edit', compact('job', 'vid'));
+        $file = asset('tareas/' . $job->file_path);
+        return view('admin.teachers.edit', compact('job', 'vid', 'file'));
     }
 
     public function update(Request $request, $id)
     {
         $job = Job::find($id);
-        $subject = Subject::find($request->subject);
         $data = $request->validate([
             'title' => 'required',
             'description' => 'required',
             'link' => 'nullable|url',
+            'file' => 'file|mimes:pdf,docx,jpg,jpeg,png',
             'start' => 'date',
-            'end' => 'date'
+            'end' => 'date|after_or_equal:' . $request->start,
         ]);
-        $data['subject_id'] = $subject->id;
 
         if ($request->file) {
-            $nameFile = FilesTrait::update($request, 'tareas', $subject->name, $job);
+            $nameFile = FilesTrait::update($request, 'tareas', $job->subject->name, $job);
             $data['file_path'] = $nameFile;
-        }
+        } else $nameFile = $job->file_path;
 
-        $job->update($data);
+        $job->update([
+            'title' => $data['title'],
+            'description' => $data['description'],
+            'file_path' => $nameFile,
+            'link' => $data['link'],
+            'start' => $data['start'],
+            'end' => $data['end']
+        ]);
 
         $users = User::role('adviser')->get();
             
@@ -157,7 +162,7 @@ class TeacherController extends Controller
                 $user->notify(new AdviserNotification($job, 'Tarea Actualizada'));
             }
         session()->flash('messages', 'Tarea actualizada');
-        return redirect()->action('TeacherController@index', $subject->id);
+        return redirect()->action('TeacherController@index', $job->subject->id);
     }
 
     public function destroy($id)
@@ -187,10 +192,17 @@ class TeacherController extends Controller
         return $subject = Subject::where('name', $filtros->first())->with('jobs')->get();
     }
 
-    public function delivery($delivery)
+    public function delivery($id)
     {
-        $delivery =  Delivery::find($delivery);
+        $delivery =  Delivery::find($id);
         $delivery->comments;
+        $notif = auth()->user()->notifications()->whereNotifiable_id(auth()->user()->id)
+            ->whereRead_at(null)
+            ->where('data->action', $id)
+            ->where('data->tipo', 'Entrega')
+            ->get();
+
+        $notif->markAsRead();
         return view('admin.teachers.delivery', compact('delivery'));
     }
 

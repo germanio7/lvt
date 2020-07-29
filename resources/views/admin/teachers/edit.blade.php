@@ -13,7 +13,7 @@
                 @csrf
                 @method('PUT')
 
-                <input hidden type="text" name="subject" id="" value="{{$job->subject->id}}">
+                {{-- <input hidden type="text" name="subject" id="" value="{{$job->subject->id}}"> --}}
 
                 <div class="flex flex-wrap my-5">
                     <div class="w-full md:w-1/2 px-3">
@@ -119,7 +119,6 @@
             </form>
             @if ($job->file_path)
             <div class="flex justify-center">
-                <input hidden value="{{asset('tareas/'. $job->file_path)}}" type="text" name="" id="auxiliar">
                 <iframe id="viewer" height="600" width="800"
                     frameborder="0"></iframe>
             </div>
@@ -138,7 +137,7 @@
 
 @push('js')
 <script>
-    let aux = document.getElementById('auxiliar').value;
+    let aux = @json($file);
 
     let tipos = ['png', 'jpg'];
 
@@ -153,7 +152,7 @@
     if (aux1 == 0) {
         document.getElementById('viewer').setAttribute('src', 'http://docs.google.com/gview?url='+aux+'&time=300000&embedded=true');
     } else {
-        document.getElementById('viewer').setAttribute('src', aux);
+        document.getElementById('viewer').setAttribute('src', aux );
     }
 
     let ancho = screen.width;
@@ -161,6 +160,10 @@
         let marco = document.getElementById('viewer');
         marco.setAttribute('height',200);
         marco.setAttribute('width',270);
+
+        let marco2 = document.getElementById('player');
+            marco2.setAttribute('height',200);
+            marco2.setAttribute('width',270);
     }
 
     function setName(){

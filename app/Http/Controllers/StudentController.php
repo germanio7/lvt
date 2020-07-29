@@ -17,7 +17,7 @@ class StudentController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('role:student')->except('updateDelivery','addComment');
+        $this->middleware('role:student')->except('updateDelivery', 'addComment');
         $this->middleware('role:teacher')->only('updateDelivery');
     }
 
@@ -33,10 +33,17 @@ class StudentController extends Controller
         return response()->download($file);
     }
 
-    public function deliver($job)
+    public function deliver($id)
     {
-        $job = Job::find($job);
+        $job = Job::find($id);
 
+        $notif = auth()->user()->notifications()->whereNotifiable_id(auth()->user()->id)
+            ->whereRead_at(null)
+            ->where('data->tipo', 'Tarea')
+            ->where('data->action', $id)
+            ->get();
+
+        $notif->markAsRead();
 
         return view('admin.students.create', compact('job'));
     }
@@ -46,34 +53,34 @@ class StudentController extends Controller
 
         try {
             // DB::transaction(function () use ($request) {
-                $nameFile = FilesTrait::store($request, $ubicacion = 'entregas', $nombre = auth()->user()->name);
-                // if ($request->file->getClientOriginalExtension() == 'pdf' || $request->file->getClientOriginalExtension() == 'docx') {
-                //     $nameFile = time() . '_' . auth()->user()->name . '.' . $request->file->getClientOriginalExtension();
-                //     $path = public_path('entregas/');
-                //     $request->file->move($path, $nameFile);
-                // }
+            $nameFile = FilesTrait::store($request, $ubicacion = 'entregas', $nombre = auth()->user()->name);
+            // if ($request->file->getClientOriginalExtension() == 'pdf' || $request->file->getClientOriginalExtension() == 'docx') {
+            //     $nameFile = time() . '_' . auth()->user()->name . '.' . $request->file->getClientOriginalExtension();
+            //     $path = public_path('entregas/');
+            //     $request->file->move($path, $nameFile);
+            // }
 
-                // if ($nameFile) {
-                    $delivery = Delivery::create([
-                        'job_id' => $request->job,
-                        'file_path' => $nameFile,
-                        'state' => 0,
-                        'user_id' => Auth::user()->id,
-                    ]);
-                // }
+            // if ($nameFile) {
+            $delivery = Delivery::create([
+                'job_id' => $request->job,
+                'file_path' => $nameFile,
+                'state' => 0,
+                'user_id' => Auth::user()->id,
+            ]);
+            // }
 
-                // Si tiene comentarios los crea
-                if ($request->comment) {
-                    Comment::create([
-                        'user_id' => Auth::user()->id,
-                        'delivery_id' => $delivery->id,
-                        'comment' => $request->comment,
-                    ]);
-                }
+            // Si tiene comentarios los crea
+            if ($request->comment) {
+                Comment::create([
+                    'user_id' => Auth::user()->id,
+                    'delivery_id' => $delivery->id,
+                    'comment' => $request->comment,
+                ]);
+            }
 
-                $job = Job::find($request->job);
-                $user = $job->subject->teacher;
-                $user->notify(new TeacherNotification('Entrega', $delivery, 'Nueva Entrega'));
+            $job = Job::find($request->job);
+            $user = $job->subject->teacher;
+            $user->notify(new TeacherNotification('Entrega', $delivery, 'Nueva Entrega'));
             // });
 
             session()->flash('message', 'Entrega creada');
@@ -82,6 +89,22 @@ class StudentController extends Controller
         }
 
         return redirect()->to('/student');
+    }
+
+    public function update(Request $request, $id)
+    {
+        $delivery = Delivery::find($id);
+        if ($request->file) {
+            $nameFile = FilesTrait::update($request, 'entregas', auth()->user()->name, $delivery);
+        } else $nameFile = $delivery->file_path;
+
+        $delivery->update([
+            'file_path' => $nameFile
+        ]);
+
+        $job = Job::find($delivery->job_id);
+        $user = $job->subject->teacher;
+        $user->notify(new TeacherNotification('Entrega', $delivery, 'Entrega Actualizada'));
     }
 
     public function deliveries()
@@ -110,6 +133,15 @@ class StudentController extends Controller
     public function show($id)
     {
         $delivery = Delivery::find($id);
+
+        $notif = auth()->user()->notifications()->whereNotifiable_id(auth()->user()->id)
+            ->whereRead_at(null)
+            ->where('data->tipo', 'Entrega')
+            ->where('data->action', $id)
+            ->get();
+
+        $notif->markAsRead();
+
         return view('admin.students.delivery', compact('delivery'));
     }
 
